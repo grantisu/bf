@@ -3,10 +3,11 @@ LIBS=
 
 SRCS=bf.c qf.c
 OBJS=$(SRCS:.c=.o)
+MAIN=bf
 
-all: bf
+all: $(MAIN)
 
-.PHONY: test
+.PHONY: test clean
 
 ${OBJS}: qf.h
 
@@ -16,6 +17,9 @@ ${OBJS}: qf.h
 bf: $(OBJS)
 	${CC} $^ -o $@ ${CFLAGS} ${LIBS}
 
+clean:
+	rm $(MAIN) $(OBJS)
+
 # Depends on Perl Test::Harness
-test: bf
+test: $(MAIN)
 	prove -r ./t
