@@ -4,7 +4,7 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 {
 	char *a;
 	unsigned short p = 0;
-	int c, ch, psize, i=0, lcount=0;
+	int c, ch, psize, i=-1, lcount=0;
 
 	a = malloc(1<<16);
 	bzero(a, 1<<16);
@@ -26,7 +26,7 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 		&&qf_nxt, &&qf_prv, &&qf_out, &&qf_inp, \
 		&&qf_beg, &&qf_end, &&qf_nop};
 
-	#define NEXT if(i < psize) { goto *itbl[(unsigned char)prog[i++]]; } else { goto qf_fin; }
+	#define NEXT if(i < psize) { goto *itbl[(unsigned char)prog[++i]]; } else { goto qf_fin; }
 
 	/* Start the program */
 	qf_nop:
@@ -52,7 +52,6 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 		NEXT;
 	qf_beg:
 		if(a[p] == 0) {
-			i--;
 			c = 1;
 			while(c) {
 				if(i == psize-1)
@@ -63,14 +62,12 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 				else if(ch == 8)
 					c--;
 			}
-			i++;
 		}
 		NEXT;
 	qf_end:
 		if(a[p] != 0) {
 			if(++lcount > MAXLOOPS)
 				goto QF_ERR;
-			i--;
 			c = -1;
 			while(c) {
 				if(i == 0)
@@ -81,7 +78,6 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 				else if(ch == 8)
 					c--;
 			}
-			i++;
 		}
 		NEXT;
 	qf_fin:
