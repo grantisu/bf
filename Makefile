@@ -14,11 +14,14 @@ ${OBJS}: qf.h
 .c.o:
 	${CC} -c $< -o $@ ${CFLAGS} ${LIBS}
 
+qf.so: qf.o
+	${CC} -shared $< -o $@
+
 bf: $(OBJS)
 	${CC} $^ -o $@ ${CFLAGS} ${LIBS}
 
 clean:
-	rm $(MAIN) $(OBJS)
+	rm $(MAIN) $(OBJS) qf.so
 
 # Depends on Perl Test::Harness
 test: $(MAIN)
