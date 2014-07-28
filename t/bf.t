@@ -51,6 +51,10 @@ my $hstr = "Hello World!\n";
 
 @tests = (
 
+[',.', 'a', 'a'],
+['><,.', 'a', 'a'],
+[',+.', 'b', 'a'],
+[',-.', 'a', 'b'],
 [$cp, '', ''],
 [$cp, $hstr, $hstr],
 [$hello, $hstr],
