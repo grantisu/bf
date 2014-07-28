@@ -1,8 +1,6 @@
 CFLAGS=-std=c99 -march=native -O2
 LIBS=
 
-CC=gcc
-
 all: bf
 
 .PHONY: test
