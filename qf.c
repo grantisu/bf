@@ -98,26 +98,33 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 /* Convert bf to qf */
 char *bf_to_qf(const char *bfp)
 {
-	int i=0, j=0, maxlen=128, plen;
+	int i=0, j=0, k=0, maxlen=128, plen;
 	char *qfp;
 	
 	plen = strlen(bfp);
 
 	qfp = malloc(maxlen);
 
+	#define CONSUME(ch) \
+		for (k = 1; bfp[i] == ch && k < 15 && i < plen; k++) ++i
+
 	while(i < plen) {
 		switch(bfp[i++]) {
 			case '+':
-				qfp[j++] = 0x11;
+				CONSUME('+');
+				qfp[j++] = 0x10 + k;
 				break;
 			case '-':
-				qfp[j++] = 0x21;
+				CONSUME('-');
+				qfp[j++] = 0x20 + k;
 				break;
 			case '>':
-				qfp[j++] = 0x31;
+				CONSUME('>');
+				qfp[j++] = 0x30 + k;
 				break;
 			case '<':
-				qfp[j++] = 0x41;
+				CONSUME('<');
+				qfp[j++] = 0x40 + k;
 				break;
 			case '.':
 				qfp[j++] = 0x50;
