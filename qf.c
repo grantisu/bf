@@ -2,9 +2,10 @@
 
 int qf_run(const char *prog, FILE *in, FILE *out)
 {
-	char *a;
+	char *a, imm=0;
 	unsigned short p = 0;
 	int c, ch, psize, i=-1, lcount=0;
+	const unsigned char *uprog = prog;
 
 	a = malloc(1<<16);
 	bzero(a, 1<<16);
@@ -12,36 +13,40 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 	psize = strlen(prog);
 
 	/* Implement an indirect threaded BF variant: QF
-	 * 1: + inc
-	 * 2: - dec
-	 * 3: > seek next
-	 * 4: < seek prev
-	 * 5: . output
-	 * 6: , input
-	 * 7: [ begin loop
-	 * 8: ] end loop
-	 * 9: nop
+	 * 0x1i: + add imm
+	 * 0x2i: - sub imm
+	 * 0x3i: > seek next imm
+	 * 0x4i: < seek prev imm
+	 * 0x50: . output
+	 * 0x60: , input
+	 * 0x70: [ begin loop
+	 * 0x80: ] end loop
+	 * 0x90: nop
 	 */
 	static void *itbl[] = {&&qf_fin, &&qf_inc, &&qf_dec, \
 		&&qf_nxt, &&qf_prv, &&qf_out, &&qf_inp, \
 		&&qf_beg, &&qf_end, &&qf_nop};
 
-	#define NEXT if(i < psize) { goto *itbl[(unsigned char)prog[++i]]; } else { goto qf_fin; }
+	#define NEXT if(i < psize) { \
+		unsigned char instr = uprog[++i]; \
+		imm = instr & 0xf; \
+		goto *itbl[instr >> 4]; \
+	} else { goto qf_fin; }
 
 	/* Start the program */
 	qf_nop:
 		NEXT;
 	qf_inc:
-		a[p]++;
+		a[p] += imm;
 		NEXT;
 	qf_dec:
-		a[p]--;
+		a[p] -= imm;
 		NEXT;
 	qf_nxt:
-		p++;
+		p += imm;
 		NEXT;
 	qf_prv:
-		p--;
+		p -= imm;
 		NEXT;
 	qf_out:
 		fputc(a[p], out);
@@ -56,10 +61,10 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 			while(c) {
 				if(i == psize-1)
 					goto QF_ERR;
-				ch = prog[++i];
-				if(ch == 7)
+				ch = uprog[++i];
+				if(ch == 0x70)
 					c++;
-				else if(ch == 8)
+				else if(ch == 0x80)
 					c--;
 			}
 		}
@@ -72,10 +77,10 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 			while(c) {
 				if(i == 0)
 					goto QF_ERR;
-				ch = prog[--i];
-				if(ch == 7)
+				ch = uprog[--i];
+				if(ch == 0x70)
 					c++;
-				else if(ch == 8)
+				else if(ch == 0x80)
 					c--;
 			}
 		}
@@ -103,28 +108,28 @@ char *bf_to_qf(const char *bfp)
 	while(i < plen) {
 		switch(bfp[i++]) {
 			case '+':
-				qfp[j++] = 1;
+				qfp[j++] = 0x11;
 				break;
 			case '-':
-				qfp[j++] = 2;
+				qfp[j++] = 0x21;
 				break;
 			case '>':
-				qfp[j++] = 3;
+				qfp[j++] = 0x31;
 				break;
 			case '<':
-				qfp[j++] = 4;
+				qfp[j++] = 0x41;
 				break;
 			case '.':
-				qfp[j++] = 5;
+				qfp[j++] = 0x50;
 				break;
 			case ',':
-				qfp[j++] = 6;
+				qfp[j++] = 0x60;
 				break;
 			case '[':
-				qfp[j++] = 7;
+				qfp[j++] = 0x70;
 				break;
 			case ']':
-				qfp[j++] = 8;
+				qfp[j++] = 0x80;
 				break;
 		}
 
