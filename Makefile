@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -march=native -O2
+CFLAGS=-std=c99 -march=native -O2 -fpic
 LIBS=
 
 SRCS=bf.c qf.c
