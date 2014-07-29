@@ -4,7 +4,7 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 {
 	char *a, imm=0;
 	unsigned short p = 0;
-	int c, ch, psize, i=-1, lcount=0;
+	int c, ch, psize, i=-1, lcount=0, ocount=0;
 	const unsigned char *uprog = prog;
 
 	a = malloc(1<<16);
@@ -49,7 +49,10 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 		p -= imm;
 		NEXT;
 	qf_out:
-		fputc(a[p], out);
+		if (ocount < MAXWRITE) {
+			fputc(a[p], out);
+			ocount++;
+		}
 		NEXT;
 	qf_inp:
 		c = fgetc(in);

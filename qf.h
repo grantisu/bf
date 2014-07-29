@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 
 #define MAXLOOPS 1000000
+#define MAXWRITE 4095
 
 int qf_run(const char *prog, FILE *in, FILE *out);
 char *bf_to_qf(const char *bfp);
