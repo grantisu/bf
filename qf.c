@@ -4,7 +4,7 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 {
 	char *a, imm=0;
 	unsigned short p = 0;
-	int c, ch, psize, i=-1, lcount=0, ocount=0;
+	int c, ch, psize, i=-1, lcount=0, ocount=0, end_of_input=0;
 	const unsigned char *uprog = prog;
 
 	a = malloc(1<<16);
@@ -55,8 +55,14 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 		}
 		NEXT;
 	qf_inp:
-		c = fgetc(in);
-		a[p] = (c != EOF) ? c : 0;
+		if (!end_of_input) {
+			c = fgetc(in);
+			if (c == EOF) {
+				c = 0;
+				end_of_input = 1;
+			}
+		}
+		a[p] = c;
 		NEXT;
 	qf_beg:
 		if(a[p] == 0) {
