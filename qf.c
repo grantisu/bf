@@ -52,6 +52,8 @@ int qf_run(const char *prog, FILE *in, FILE *out)
 		if (ocount < MAXWRITE) {
 			fputc(a[p], out);
 			ocount++;
+		} else {
+			goto QF_ERR;
 		}
 		NEXT;
 	qf_inp:
