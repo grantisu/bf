@@ -1,4 +1,7 @@
-CFLAGS=-std=c99 -march=native -O2 -fpic
+MAXLOOPS ?= 1000000
+MAXWRITE ?= 4095
+
+CFLAGS=-std=c99 -march=native -O2 -fpic -DMAXLOOPS=${MAXLOOPS} -DMAXWRITE=${MAXWRITE}
 LIBS=
 
 SRCS=bf.c qf.c
